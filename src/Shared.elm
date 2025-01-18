@@ -23,6 +23,7 @@ type alias Model =
 type Msg
     = Increment
     | Decrement
+    | StartLottery
 
 
 init : Request -> Flags -> ( Model, Cmd Msg )
@@ -42,6 +43,8 @@ update _ msg model =
             ( { model | counter = model.counter - 1 }
             , Cmd.none
             )
+        StartLottery ->
+            ( model, Cmd.none )
 
 
 subscriptions : Request -> Model -> Sub Msg
