@@ -34,6 +34,7 @@ type alias Model =
     { inputText : String
     , numWinners : String
     , results : List String
+    , error : Maybe String
     , currentSeed : Random.Seed
     }
 
@@ -47,6 +48,7 @@ init =
         { inputText = ""
         , numWinners = "1"
         , results = []
+        , error = Nothing
         , currentSeed = seed
         }
     , Effect.none )
@@ -66,26 +68,28 @@ update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
         UpdateInputText text ->
-            ( { model | inputText = text }, Effect.none )
+            ( { model | inputText = text, error = Nothing }, Effect.none )
         UpdateNumWinners num ->
-            ( { model | numWinners = num }, Effect.none )
+            ( { model | numWinners = num, error = Nothing }, Effect.none )
         StartLottery ->
             let
                 entries =
                     String.split "\n" model.inputText |> List.filter ((/=) "")
                 maybeNumWinners =
                     String.toInt model.numWinners
-                (selected, newSeed) =
-                    case maybeNumWinners of
-                        Just n ->
-                            let
-                                generator = Random.list n (Random.uniform "a" entries)
-                            in
-                            Random.step generator model.currentSeed
-                        Nothing ->
-                            ( [], model.currentSeed )
             in
-            ( { model | results = selected, currentSeed = newSeed }, Effect.none )
+            case maybeNumWinners of
+                Just n ->
+                    if n > List.length entries then
+                        ( { model | error = Just "Number of winners cannot be greater than the number of entries.", results = [] }, Effect.none )
+                    else
+                        let
+                            generator = Random.list n (Random.uniform "a" entries)
+                            (selected, newSeed) = Random.step generator model.currentSeed
+                        in
+                        ( { model | results = selected, error = Nothing, currentSeed = newSeed }, Effect.none )
+                Nothing ->
+                    ( { model | error = Just "Invalid number of winners.", results = [] }, Effect.none )
         UpdateTime posix ->
             let
                 newSeed = Random.initialSeed (Time.posixToMillis posix)
@@ -113,13 +117,18 @@ view _ model =
         UI.layout
             [ UI.h1 "Lottery"
             , div []
-                [ textarea [ placeholder "Enter items, one per line", value model.inputText, onInput UpdateInputText ] []
-                , input [ placeholder "Number of winners", value model.numWinners, onInput UpdateNumWinners ] []
+                [ text "Enter the items for the lottery, one per line, and specify the number of winners."
+                , textarea [ placeholder "Enter items, one per line", value model.inputText, onInput UpdateInputText ] []
+                , input [ placeholder "Number of winners", value model.numWinners, onInput UpdateNumWinners, Html.Attributes.type_ "number" ] []
                 , button [ onClick StartLottery ] [ text "Start Lottery" ]
                 ]
-            , div []
-                [ h1 [] [ text "Results" ]
-                , div [] (List.map (\result -> div [] [ text result ]) model.results)
-                ]
+            , case model.error of
+                Just errorMsg ->
+                    div [] [ text errorMsg ]
+                Nothing ->
+                    div []
+                        [ h1 [] [ text "Results" ]
+                        , div [] (List.map (\result -> div [] [ text result ]) model.results)
+                        ]
             ]
     }
