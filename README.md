@@ -34,4 +34,6 @@ Install elm package
 
 ```
 elm install elm/random
+elm install elm/time
+elm install elm-community/random-extra
 ```

@@ -14,6 +14,7 @@ import Html.Events exposing (onInput)
 import Html.Events exposing (onClick)
 import Time exposing (Posix)
 import Random
+import Random.List
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -84,8 +85,9 @@ update msg model =
                         ( { model | error = Just "Number of winners cannot be greater than the number of entries.", results = [] }, Effect.none )
                     else
                         let
-                            generator = Random.list n (Random.uniform "a" entries)
-                            (selected, newSeed) = Random.step generator model.currentSeed
+                            shuffleGenerator = Random.List.shuffle entries
+                            (shuffled, newSeed) = Random.step shuffleGenerator model.currentSeed
+                            selected = List.take n shuffled
                         in
                         ( { model | results = selected, error = Nothing, currentSeed = newSeed }, Effect.none )
                 Nothing ->
