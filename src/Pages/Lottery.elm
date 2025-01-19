@@ -2,7 +2,7 @@ module Pages.Lottery exposing (Model, Msg, page)
 
 import Effect exposing (Effect)
 import Gen.Params.Lottery exposing (Params)
-import Html exposing (button, div, h1, input, text, textarea)
+import Html exposing (button, div, h2, input, text, textarea)
 import Page
 import Request
 import Shared
@@ -127,7 +127,7 @@ view _ model =
                     div [] [ text errorMsg ]
                 Nothing ->
                     div []
-                        [ h1 [] [ text "Results" ]
+                        [ h2 [] [ text "Results" ]
                         , div [] (List.map (\result -> div [] [ text result ]) model.results)
                         ]
             ]
