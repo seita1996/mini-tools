@@ -15,6 +15,7 @@ import Html.Events exposing (onClick)
 import Time exposing (Posix)
 import Random
 import Random.List
+import Task
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -42,17 +43,14 @@ type alias Model =
 
 init : ( Model, Effect Msg )
 init =
-    let
-        seed = Random.initialSeed 0
-    in
     (
         { inputText = ""
         , numWinners = "1"
         , results = []
         , error = Nothing
-        , currentSeed = seed
+        , currentSeed = Random.initialSeed 0  -- 仮のシード値（直後にUpdateTimeで現在時刻のシードに更新される）
         }
-    , Effect.none )
+    , Effect.fromCmd (Task.perform UpdateTime Time.now) )  -- 初期化時に現在時刻を取得
 
 
 
