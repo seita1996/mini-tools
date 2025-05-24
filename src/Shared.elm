@@ -1,4 +1,4 @@
-module Shared exposing
+port module Shared exposing
     ( Flags
     , Model
     , Msg(..)
@@ -9,6 +9,10 @@ module Shared exposing
 
 import Json.Decode as Json
 import Request exposing (Request)
+
+
+-- Port for QR code generation (defined in Main.elm)
+port generateQRCodePort : { text : String, size : Int } -> Cmd msg
 
 
 type alias Flags =
@@ -24,6 +28,7 @@ type Msg
     = Increment
     | Decrement
     | StartLottery
+    | GenerateQRCode { text : String, size : Int }
 
 
 init : Request -> Flags -> ( Model, Cmd Msg )
@@ -45,6 +50,9 @@ update _ msg model =
             )
         StartLottery ->
             ( model, Cmd.none )
+        
+        GenerateQRCode data ->
+            ( model, generateQRCodePort data )
 
 
 subscriptions : Request -> Model -> Sub Msg

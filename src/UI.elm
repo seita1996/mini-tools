@@ -16,6 +16,7 @@ layout children =
         [ Html.header [ Attr.class "navbar" ]
             [ Html.strong [ Attr.class "brand" ] [ viewLink "Home" Route.Home_ ]
             , viewLink "Lottery" Route.Lottery
+            , viewLink "QR Code" Route.QrCode
             , Html.div [ Attr.class "splitter" ] []
             ]
         , Html.main_ [] children
